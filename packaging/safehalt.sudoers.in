@@ -1,0 +1,2 @@
+# Require a fresh sudo authentication for every SafeHalt invocation.
+Defaults!@COMMAND_PATH@ timestamp_timeout=0
