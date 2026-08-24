@@ -1,0 +1,69 @@
+.TH SAFEHALT 8 "August 2026" "SafeHalt 0.3.0" "System Administration"
+.SH NAME
+safehalt \- emergency isolation and reversible file quarantine for Linux
+.SH SYNOPSIS
+.B sudo safehalt
+{setup|test|status|doctor|trigger|paths|recovery|network-recover}
+.SH DESCRIPTION
+.B SafeHalt
+uses two independent emergency passwords. The lockdown password isolates
+networking, locks local sessions and requests a clean power-off through
+capability-detected backends.
+The quarantine password first moves explicitly allowlisted paths into a
+root-only same-filesystem quarantine and then performs the lockdown sequence.
+SafeHalt does not erase files, disks, partitions or encryption keys.
+.SH COMMANDS
+.TP
+.B setup [--force]
+Configure or replace both emergency passwords.
+.TP
+.B test
+Identify a password's mode without changing the system.
+.TP
+.B status
+Audit dependencies, configured paths, manifests and LUKS detection.
+.TP
+.B doctor [--json]
+Report distribution metadata, init system, selected backends and whether the
+complete lockdown sequence is supported. Distribution metadata is not used to
+authorize system actions.
+.TP
+.B paths add PATH
+Add an existing, non-root-owned subdirectory below a user's home.
+.TP
+.B paths remove PATH
+Remove an exact target from the allowlist.
+.TP
+.B paths list
+List configured targets.
+.TP
+.B trigger
+Prompt once; the supplied emergency password selects lockdown or quarantine.
+.TP
+.B recovery list
+List recorded quarantine activations.
+.TP
+.B recovery run ACTIVATION_ID
+Restore one activation after verifying the quarantine password.
+.TP
+.B network-recover
+Remove SafeHalt network isolation after verifying the quarantine password.
+.SH FILES
+.TP
+.I /etc/safehalt/credentials.json
+scrypt-derived password records, root-owned with mode 0600.
+.TP
+.I /etc/safehalt/paths.json
+Explicit quarantine allowlist.
+.TP
+.I /var/lib/safehalt/manifests
+Root-only recovery manifests.
+.TP
+.I HOME_PARENT/.safehalt-quarantine
+Root-only reversible quarantine data, created separately for each account home
+root represented by the configured paths.
+.SH SECURITY
+Complete user homes, mount points, symbolic links, overlapping targets and
+paths outside declared non-root account homes are rejected. Quarantine requires
+an atomic rename on the same filesystem. An attacker with root can bypass SafeHalt. Confidentiality
+after shutdown additionally depends on full-disk encryption.
